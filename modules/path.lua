@@ -1,6 +1,7 @@
 local exports = {}
 
 local w = require('tables').wrap
+local clink_version = require('clink_version')
 
 exports.list_files = function (base_path, glob, recursive, reverse_separator)
     local mask = glob or '/*'
@@ -34,20 +35,39 @@ exports.list_files = function (base_path, glob, recursive, reverse_separator)
     end)
 end
 
-exports.basename = function (path)
-    local prefix = path
-    local i = path:find("[\\/:][^\\/:]*$")
-    if i then
-        prefix = path:sub(i + 1)
+exports.basename = function (x)
+    local prefix = x
+    if clink_version.supports_path_toparent then
+        prefix = path.getname(x)
+    else
+        local i = path:find("[\\/:][^\\/:]*$")
+        if i then
+            prefix = path:sub(i + 1)
+        end
     end
     return prefix
 end
 
-exports.pathname = function (path)
+exports.pathname = function (x)
     local prefix = ""
-    local i = path:find("[\\/:][^\\/:]*$")
-    if i then
-        prefix = path:sub(1, i-1)
+    if clink_version.supports_path_toparent then
+        -- Clink v1.1.20 and higher provide an API to do this right.
+        local child
+        prefix,child = path.toparent(x)
+        if child == "" then
+            -- This means it can't go up further.  The old implementation
+            -- returned "" in that case, though no callers stopped when an
+            -- empty path was returned; they only stopped when the
+            -- returned path equaled the input path.
+            prefix = ""
+        end
+    else
+        -- This approach has several bugs. For example, "c:/" yields "c".
+        -- Walking up looking for .git tries "c:/.git" and then "c/.git".
+        local i = path:find("[\\/:][^\\/:]*$")
+        if i then
+            prefix = path:sub(1, i-1)
+        end
     end
     return prefix
 end
