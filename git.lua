@@ -325,7 +325,7 @@ local stashes = function(token)  -- luacheck: no unused args
             -- description.  If the script does so, then the popup completion
             -- window is able to show the stash name plus a dimmed description,
             -- but only insert the stash name.
-            table.insert(ret_filter, { match=match, type="word", description=stashes[v] })
+            table.insert(ret_filter, { match=match, type="none", description=stashes[v] })
         else
             table.insert(ret_filter, match.."    "..stashes[v])
         end
