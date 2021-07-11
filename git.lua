@@ -216,9 +216,9 @@ local function checkout_spec_generator(token)
             star = color.get_clink_color('color.git.star')..star..color.get_clink_color('color.filtered')
         end
         return files
-            :concat(local_branches:map(function(branch) return { match=branch, display=branch } end))
+            :concat(local_branches:map(function(branch) return { match=branch } end))
             :concat(predicted_branches:map(function(branch) return { match=branch, display=star..branch } end))
-            :concat(remote_branches:map(function(branch) return { match=branch, display=branch } end))
+            :concat(remote_branches:map(function(branch) return { match=branch } end))
     end)
 
     return files
